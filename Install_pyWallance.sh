@@ -83,6 +83,7 @@ sudo apt-get install -y desktop-file-utils
 sudo update-desktop-database
 
 # Create pyWallance_Node.zip archive
+cd $HOME/WallanceProject/pyWallance/
 zip pyWallance_Node.zip pyWallance_Node.service Node.py Sensor.py
 zip -u pyWallance_Node.zip SmartContract/*/*.py
 
