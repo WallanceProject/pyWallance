@@ -1,0 +1,14 @@
+[Unit]
+Description=pyWallance Node
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/pyWallance/Node.py
+WorkingDirectory=/home/pi/pyWallance/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

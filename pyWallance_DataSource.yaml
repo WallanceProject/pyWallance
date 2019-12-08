@@ -1,0 +1,24 @@
+
+# Grafana Data Source Configuration
+
+# Config file version
+apiVersion: 1
+
+# Delete Previous Data Source
+deleteDatasources:
+- name: MySQLpyWallance
+  orgId: 1
+
+# Create New Datasource
+datasources:
+- name: MySQLpyWallance
+  orgId: 1
+  type: mysql
+  url: localhost:3306
+  database: pyWALLANCE
+  user: grafanaReader
+  jsonData:
+    maxOpenConns: 0
+    maxIdleConns: 2
+    connMaxLifetime: 14400
+    timeInterval: 2s

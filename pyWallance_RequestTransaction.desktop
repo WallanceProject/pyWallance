@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=/usr/bin/python3 -c "import os; import sys; sys.path.insert(1, os.environ.get('HOME') + '/pyWallance/'); from Interface import *; Interface.SendRequestTransaction(%U);"
+Type=Application
+NoDisplay=true
+StartupNotify=false
+Categories=System;
+MimeType=x-scheme-handler/pywallancesendrequest;
