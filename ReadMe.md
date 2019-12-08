@@ -5,7 +5,7 @@
 
 We propose a lightweight alternative to blockchain, called *Wallance* to secure interactions in a decentralized IoT infrastructure. Taking into account all its constraints as memory, computing power and energy, our proof of concept promotes the sharing of data and the utilization of services as a real IoT network, in a secure way.
 
-In this tutorial, we will install step by step *pyWallance* Node (on Raspberry Pi3 Model B+) and *pyWallance* User Interface (on PC) based on Grafana. A complete description of our protocol is available on our paper "*Wallance, an Alternative to Blockchain for IoT*". *pyWallance* iis a python implementation of *Wallance* using standard socket library.
+In this tutorial, we will install step by step *pyWallance* Node (on Raspberry Pi3 Model B+) and *pyWallance* User Interface (on PC) based on Grafana. A complete description of our protocol is available on our paper "*Wallance, an Alternative to Blockchain for IoT*". *pyWallance* is a python implementation of *Wallance* using standard socket library.
 <br><br>
 
 
