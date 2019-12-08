@@ -1,164 +1,101 @@
-# Wallance, an Alternative to Blockchain for IoT (Tutorial)
+#!/bin/bash
+
+# Install pyWallance
+# Command: ./Install_pyWallance.sh
 
 
-## Introduction
 
-We propose a lightweight alternative to blockchain, called *Wallance* to secure interactions in a decentralized IoT infrastructure. Taking into account all its constraints as memory, computing power and energy, our proof of concept promotes the sharing of data and the utilization of services as a real IoT network, in a secure way.
+# -----------------
+# LINUX ENVIRONMENT
+# -----------------
 
-In this tutorial, we will install step by step *pyWallance* Node (on Raspberry Pi3 Model B+) and *pyWallance* User Interface (on PC) based on Grafana. A complete description of our protocol is available on our paper "*Wallance, an Alternative to Blockchain for IoT*". *pyWallance* iis a python implementation of *Wallance* using standard socket library.
-<br><br>
+# Update Ubuntu
+sudo apt-get update
 
+# Install modules
+sudo apt-get install -y openssh-server \
+python3 \
+wget \
+nmap \
+zip
 
-## Prerequisites
-
-- A Linux environment
-- At least 3 Raspberry Pi are required
-- An internet connection is required
-<br><br>
-
-
-## Install *pyWallance*
-
-Download and launch the installer *Install_pyWallance.sh*. In a terminal on your **PC**:
-<pre><code>wget https://raw.githubusercontent.com/WallanceProject/pyWallance/master/Install_pyWallance.sh
-chmod +x Install_pyWallance.sh
-./Install_pyWallance.sh</code></pre>
-
-At the end of the process, you should see the "WallanceProject" directory in your $HOME with the *pyWallance* directory, described below:
-<br><br>
-![](ReadMeImages/pyWallance.PNG)
-
-| **File** | **Description** |
-| :--------------: | :-----------: |
-| Install_pyWallance.sh | Script to install *pyWallance* |
-| Interface.py | Source code of *pyWallance* User Interface using Grafana (PC only) |
-| Node.py | Source code of *pyWallance* Node (Raspberry only) |
-| pyWallance_Dashboard.js | *pyWallance* User Interface Dashboard for Grafana (PC only) |
-| pyWallance_DataSource.yaml | *pyWallance* User Interface Data Source for Grafana (PC only) |
-| pyWallance_Node.service | *pyWallance* Node service launcher (Raspberry only) |
-| pyWallance_Node.zip | *pyWallance* Node installer (Raspberry only) |
-| pyWallance_RequestTransaction.desktop | Plug-in to generate Request Transaction from Grafana (PC only) |
-| ReadMe.md | Readme of the *pyWallance* |
-| Sensor.py | Source code of *pyWallance* Virtual Sensor (Raspberry only) |
-| Shutdown_Node.sh | Script to shutdown *pyWallance* Node from PC (using SSH) |
-| Update_Node.sh | Script to update *pyWallance* Node from PC , with the updated pyWallance_Node.zip(using SSH) |
-
-| **Directory** | **Description** |
-| :--------------: | :-----------: |
-| ReadMeImages/ | Images of ReadMe.md file |
-| SmartContract/ | Source codes of all Smart Contracts (Services) |
-
-Note: the *pyWallance_Node.zip* archive contains all executables and libraries for the *pyWallanceDDS* Node version (Raspberry). **This archive must be copied on each Raspberry to be deployed on the network (see next section).**<br>
-
-**WARNING: Before continuing, make sure your PC and Raspberry are on the same network.**
-<br><br>
+# Create Wallance Project Directory
+mkdir -p $HOME/WallanceProject
 
 
-## Install *pyWallance* Node (Raspberry)
+# ------------
+# SUBLIME TEXT
+# ------------
 
-### Prerequisites
-
-- Ensure an image of a Linux distribution is already available on Raspberry.<br>
-- An internet connection is required
-- For a best experience, copy your Public RSA key into each Raspberry to enable the automatic login through SSH
-
-### Installation
-
-In a terminal on your **PC**:
-<pre><code>cd $HOME/WallanceProject/pyWallance
-./Update_Node.sh</code></pre>
-
-This command automatically install the *pyWallance* Node in the $HOME directory (typically */home/pi/*) in each connected Raspberry through SSH connection.<br>
-
-At the end of the installation, the *pyWallance* directory in Raspberry is as follow:
-<br><br>
-![](ReadMeImages/RPI.PNG)
-
-| **Directory/File** | **Description** |
-| :--------------: | :-----------: |
-| Node.py | Source code of *pyWallance* Node (Raspberry only) |
-| Sensor.py | Source code of *pyWallance* Virtual Sensor (Raspberry only) |
-| SmartContract/ | Source codes of all Smart Contracts (Services) |
-
-<br>
+sudo apt-get install -y gnupg
+sudo apt-get install -y libgtk2.0-0
+sudo wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+sudo echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+sudo apt-get update
+sudo apt-get install -y sublime-text
 
 
-## Run *pyWallance*
 
-In a terminal on your **PC**:
-<pre><code>cd $HOME/WallanceProject/pyWallance
-./Run_Grafana_Interface.sh</code></pre>
+# -----------------
+# GRAFANA INTERFACE
+# -----------------
 
-This command start the *pyWallance* Node on each Raspberry and the *pyWallance* User Interface on PC. The Grafana dashboard is opened into a Firefox window. The first connection login is “admin” and the password is “admin”. You can change the password after logging in:
-<br><br>
-![](ReadMeImages/Grafana1.PNG)
+# Install Grafana Interface - Install Web Browser (Firefox)
+sudo apt-get install -y firefox
 
-Finally, the *pyWallance* User Interface is ready.
-<br><br>
-![](ReadMeImages/Grafana2.PNG)
+# Install Grafana Interface - Install MySQL
+sudo apt-get install -y mysql-server
+sudo service mysql start
+sudo mysql -e "CREATE USER 'grafanaReader'@'localhost'"
+sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'grafanaReader'@'localhost';"
+sudo mysql -e "FLUSH PRIVILEGES;"
 
-(1): Select Node(s) to display<br>
-(2): Information of Node (1 Node per Line)<br>
-(3): Button to purchase a service<br>
-(4): Node's purchase in process (*Request Transaction*)<br>
-(5): Node's Wallet (*DCoin*)<br>
-(6): List of available Smart Contracts (Services)<br>
-(7): Select Smart Contract (Services) to purchase<br>
-(8): *Consensus Transactions*<br>
-<br>
+# Install Grafana Interface - Install Grafana (Default Login/Password: admin/admin)
+wget https://dl.grafana.com/oss/release/grafana_5.4.3_amd64.deb
+sudo dpkg -i grafana_5.4.3_amd64.deb
+rm grafana_5.4.3_amd64.deb
 
 
-## Utilization of *pyWallance* User Interface (PC)
 
-On Grafana, a service can be purchase on behalf of a Raspberry, by clicking on the button "Buy Service" under the selected Raspberry. The service will be purchased only when the Raspberry will have enough DCoins.
-<br><br>
-![](ReadMeImages/GrafanaButton.PNG)
+# ----------
+# pyWALLANCE
+# ----------
 
-By default, the ID of each Raspberry is the last byte of the IP Address.<br>
+# Download pyWallance
+cd $HOME/WallanceProject
+wget https://github.com/WallanceProject/pyWallance/archive/master.zip -O pyWallance.zip
 
-Note: the list of Node is updated when the Raspberry sends data. Consequently, it can take time to display all Raspberry, according to their sending.<br>
+# Unzip pyWallance
+unzip pyWallance.zip
+mv pyWallance-master pyWallance
+rm pyWallance.zip
 
-During the first purchase, the pop-up window below appears. Firefox asks the permission to open the launcher of purchase application from Grafana.<br>
-Select "Remember my choice for app links" and click on "Open link".
-<br><br>
-![](ReadMeImages/Grafana3.PNG)
+# Manage Permission Accesses
+chmod 755 $HOME/WallanceProject/pyWallance/*
 
-Once a purchase is executed, a *Request Transaction* is generated and displayed on the User Interface in "Node x - *Request Transactions*" panel.<br>
+# Install pyWallance Interface
+sudo cp $HOME/WallanceProject/pyWallance/pyWallance_DataSource.yaml /etc/grafana/provisioning/datasources/
+sudo cp $HOME/WallanceProject/pyWallance/pyWallance_Dashboard.js /usr/share/grafana/public/dashboards/
 
-After that, if all conditions are met, the other Nodes send their agreement thanks to a *Consensus Transaction*, displayed on "*Consensus Transactions*" panel.<br>
+# Install pyWallance Interface Request Transaction
+sudo cp $HOME/WallanceProject/pyWallance/pyWallance_RequestTransaction.desktop /usr/share/applications/
+sudo apt-get install -y desktop-file-utils
+sudo update-desktop-database
 
-Below, an example of the interface, showing 'Node1' and 'Node2' with:<br>
-- *Request Transaction* of Node1 (in "Node1 - *Request Transactions*" panel)<br>
-- *Consensus Transaction* of Node 2 for the *Request Transaction* of Node1 (in "*Consensus Transactions*" panel)
+# Create pyWallance_Node.zip archive
+cd $HOME/WallanceProject/pyWallance/
+zip pyWallance_Node.zip pyWallance_Node.service Node.py Sensor.py
+zip -u pyWallance_Node.zip SmartContract/*/*.py
 
-![](ReadMeImages/Grafana4.PNG)
-
-Finally, the consensus process is computed, the *Request Transaction* / *Consensus Transactions* are removed and wallets are updated.
-<br><br>
-
-
-## Stop *pyWallance*
-
-Close the Firefox window.<br>
-Stop the Run_Grafana_Interface instance in your PC with <Ctrl+C>.<br>
-The *pyWallance* Node instance on each Raspberry will be stopped automatically (using SSH)
-<br><br>
-
-
-## *pyWallance* IDE
-
-The *pyWallance* installation provides a complete Integrated Development Environment (IDE) of *pyWallance*.
-
-The text editor *Sublime Text* is available to edit the *pyWallance* source codes.
-
-In a terminal on your **PC**:
-<pre><code>subl $HOME/WallanceProject/pyWallance</code></pre>
-
-**If you edit the source code of *Node*, *Sensor* or *SmartContract*, the updated *pyWallanceDDS_Node.zip* archive must be copied to each Raspberry deployed on the network.**
-
-### Update *pyWallance* Node (Raspberry)
-
-In a terminal on your **PC**:
-<pre><code>cd $HOME/WallanceProject/pyWallance/Update_Node.sh</code></pre>
-
-This command updates the *pyWallanceNode.zip* archive with your modifications and updates all connected Raspberry with your modifications.
+# Create Install pyWallance Node Script
+MyCMD='#!/bin/bash\n'
+echo -e $MyCMD > Install_pyWallance_Node.sh
+#echo -e "sudo apt-get update" >> Install_pyWallance_Node.sh
+echo "sudo mv pyWallance/pyWallance_Node.service /etc/systemd/system/" >> Install_pyWallance_Node.sh
+echo "sudo systemctl daemon-reload" >> Install_pyWallance_Node.sh
+echo "sudo rm -f -R pyWallance && mkdir pyWallance" >> Install_pyWallance_Node.sh
+echo "mv Node.py Sensor.py SmartContract pyWallanceDDS" >> Install_pyWallance_Node.sh
+echo "rm Install_pyWallance_Node.sh" >> Install_pyWallance_Node.sh
+chmod +x Install_pyWallance_Node.sh
+zip -u pyWallance_Node.zip Install_pyWallance_Node.sh
+rm Install_pyWallance_Node.sh
