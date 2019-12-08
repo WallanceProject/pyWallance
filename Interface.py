@@ -303,8 +303,8 @@ class Interface():
 	# INTERFACE START GRAFANA #
 	###########################
 	def StartGrafana(self):
-		os.system("sudo service grafana-server start")
-		os.system("sudo service mysql start")
+		os.system("sudo service grafana-server restart")
+		os.system("sudo service mysql restart")
 		os.system("/usr/bin/firefox -new-tab http://localhost:3000/dashboard/script/pyWallance_Dashboard.js &")
 
 
