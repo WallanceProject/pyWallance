@@ -53,17 +53,17 @@ class Interface():
 	def __init__(self):
 
 		# Create MySQL Wallance Database
-		os.system("mysql -u grafanaReader -e 'CREATE DATABASE IF NOT EXISTS pyWALLANCEDB;'")
+		os.system("mysql -u grafanaReader -e 'CREATE DATABASE IF NOT EXISTS pyWALLANCE;'")
 		os.system("mysql -u grafanaReader -e \"SET @@SESSION.TIME_ZONE = '+00:00';\"")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'CREATE TABLE IF NOT EXISTS WALLET (PUBLISHER VARCHAR(32), COUNTER INTEGER, STATE VARCHAR(64));'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'CREATE TABLE IF NOT EXISTS REQUEST_TRANSACTIONS (PUBLISHER VARCHAR(32), SMARTCONTRACT VARCHAR(32), PRICE INTEGER, TIME INTEGER, PREVSTATE VARCHAR(64), OUTDATE INTEGER, UNIQUE(PUBLISHER, PREVSTATE));'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'CREATE TABLE IF NOT EXISTS CONSENSUS_TRANSACTIONS (SUBSCRIBER VARCHAR(32), PUBLISHER VARCHAR(32), SMARTCONTRACT VARCHAR(32), PRICE INTEGER, TIME INTEGER, PREVSTATE VARCHAR(64), DCOIN INTEGER, OUTDATE INTEGER);'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'CREATE TABLE IF NOT EXISTS SMARTCONTRACT (NAME VARCHAR(32) UNIQUE, PRICE INTEGER);'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'CREATE TABLE IF NOT EXISTS WALLET (PUBLISHER VARCHAR(32), COUNTER INTEGER, STATE VARCHAR(64));'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'CREATE TABLE IF NOT EXISTS REQUEST_TRANSACTIONS (PUBLISHER VARCHAR(32), SMARTCONTRACT VARCHAR(32), PRICE INTEGER, TIME INTEGER, PREVSTATE VARCHAR(64), OUTDATE INTEGER, UNIQUE(PUBLISHER, PREVSTATE));'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'CREATE TABLE IF NOT EXISTS CONSENSUS_TRANSACTIONS (SUBSCRIBER VARCHAR(32), PUBLISHER VARCHAR(32), SMARTCONTRACT VARCHAR(32), PRICE INTEGER, TIME INTEGER, PREVSTATE VARCHAR(64), DCOIN INTEGER, OUTDATE INTEGER);'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'CREATE TABLE IF NOT EXISTS SMARTCONTRACT (NAME VARCHAR(32) UNIQUE, PRICE INTEGER);'")
 
 		# Create SmartContract Database
 		for i in os.listdir("SmartContract"):
 			if os.path.exists("SmartContract/" +  i + "/" + i + ".py"):
-				os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"INSERT INTO SMARTCONTRACT (NAME,PRICE) VALUES('" + i.split(Node.DataDelimiter)[0] + "'," + str(i.split(Node.DataDelimiter)[1]) + ");\"")
+				os.system("mysql -u grafanaReader -D pyWALLANCE -e \"INSERT INTO SMARTCONTRACT (NAME,PRICE) VALUES('" + i.split(Node.DataDelimiter)[0] + "'," + str(i.split(Node.DataDelimiter)[1]) + ");\"")
 
 		# MySQL Wallance Database Lockers
 		self.MySQLLock = threading.RLock()
@@ -147,7 +147,7 @@ class Interface():
 			return -1
 
 		# Recover Publisher's PrevState
-		PrevState = os.popen("mysql -u grafanaReader -D pyWALLANCEDB -s -e \"SELECT STATE FROM WALLET WHERE PUBLISHER='" + MyRequestTX[0] + "';\"").readlines()
+		PrevState = os.popen("mysql -u grafanaReader -D pyWALLANCE -s -e \"SELECT STATE FROM WALLET WHERE PUBLISHER='" + MyRequestTX[0] + "';\"").readlines()
 		PrevState = PrevState[0].split('\n')[0]
 
 		
@@ -199,8 +199,8 @@ class Interface():
 		# Sensor Topic
 		if Topic == Sensor.MulticastIP:
 			MyData = Data.decode("utf8").split(Sensor.DataDelimiter)
-			os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"SELECT COALESCE( (SELECT COUNTER FROM WALLET WHERE PUBLISHER='" + MyData[0] + "')+1,1) INTO @CPT; SELECT COALESCE( (SELECT STATE FROM WALLET WHERE PUBLISHER='" + MyData[0] + "'),'" + Node.GenesisState + "') INTO @ST; PREPARE STMT FROM 'INSERT INTO WALLET (PUBLISHER,COUNTER,STATE) VALUES (''" + MyData[0] + "'', ?, ?)'; EXECUTE STMT USING @CPT,@ST;\"")
-			os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"SELECT MAX(COUNTER) FROM WALLET WHERE PUBLISHER='" + MyData[0] + "' INTO @CPT; PREPARE STMT FROM 'DELETE FROM WALLET WHERE PUBLISHER=''" + MyData[0] + "'' AND COUNTER <?'; EXECUTE STMT USING @CPT;\"")
+			os.system("mysql -u grafanaReader -D pyWALLANCE -e \"SELECT COALESCE( (SELECT COUNTER FROM WALLET WHERE PUBLISHER='" + MyData[0] + "')+1,1) INTO @CPT; SELECT COALESCE( (SELECT STATE FROM WALLET WHERE PUBLISHER='" + MyData[0] + "'),'" + Node.GenesisState + "') INTO @ST; PREPARE STMT FROM 'INSERT INTO WALLET (PUBLISHER,COUNTER,STATE) VALUES (''" + MyData[0] + "'', ?, ?)'; EXECUTE STMT USING @CPT,@ST;\"")
+			os.system("mysql -u grafanaReader -D pyWALLANCE -e \"SELECT MAX(COUNTER) FROM WALLET WHERE PUBLISHER='" + MyData[0] + "' INTO @CPT; PREPARE STMT FROM 'DELETE FROM WALLET WHERE PUBLISHER=''" + MyData[0] + "'' AND COUNTER <?'; EXECUTE STMT USING @CPT;\"")
 
 
 		elif Topic == Node.ConsensusMulticastIP:
@@ -213,19 +213,19 @@ class Interface():
 				if MyData[0] == MyData[1]:
 
 					# Manage old Consensus Responses of Requester
-					os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"UPDATE CONSENSUS_TRANSACTIONS SET OUTDATE = OUTDATE-1 WHERE PUBLISHER='" + MyData[1] + "';\"")
-					os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"DELETE FROM CONSENSUS_TRANSACTIONS WHERE OUTDATE <= 0;\"")
+					os.system("mysql -u grafanaReader -D pyWALLANCE -e \"UPDATE CONSENSUS_TRANSACTIONS SET OUTDATE = OUTDATE-1 WHERE PUBLISHER='" + MyData[1] + "';\"")
+					os.system("mysql -u grafanaReader -D pyWALLANCE -e \"DELETE FROM CONSENSUS_TRANSACTIONS WHERE OUTDATE <= 0;\"")
 
 					# Manage old Request Transaction of Requester
-					os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"UPDATE REQUEST_TRANSACTIONS SET OUTDATE = OUTDATE-1 WHERE PUBLISHER='" + MyData[1] + "';\"")
-					os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"DELETE FROM REQUEST_TRANSACTIONS WHERE OUTDATE <= 0;\"")
+					os.system("mysql -u grafanaReader -D pyWALLANCE -e \"UPDATE REQUEST_TRANSACTIONS SET OUTDATE = OUTDATE-1 WHERE PUBLISHER='" + MyData[1] + "';\"")
+					os.system("mysql -u grafanaReader -D pyWALLANCE -e \"DELETE FROM REQUEST_TRANSACTIONS WHERE OUTDATE <= 0;\"")
 
 					# Insert Request Transaction
-					os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"INSERT INTO REQUEST_TRANSACTIONS (PUBLISHER,SMARTCONTRACT,PRICE,TIME,PREVSTATE,OUTDATE) VALUES ('" + MyData[1] + "','" + MyData[2] + "'," + MyData[3] + "," + MyData[4] + ",'" + MyData[5] + "'," + str(Node.TransactionOutdate) + ");\"")
+					os.system("mysql -u grafanaReader -D pyWALLANCE -e \"INSERT INTO REQUEST_TRANSACTIONS (PUBLISHER,SMARTCONTRACT,PRICE,TIME,PREVSTATE,OUTDATE) VALUES ('" + MyData[1] + "','" + MyData[2] + "'," + MyData[3] + "," + MyData[4] + ",'" + MyData[5] + "'," + str(Node.TransactionOutdate) + ");\"")
 			
 				# Add New Consensus Transaction
 				else:
-					os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"INSERT INTO CONSENSUS_TRANSACTIONS (SUBSCRIBER,PUBLISHER,SMARTCONTRACT,PRICE,TIME,PREVSTATE,DCOIN,OUTDATE) VALUES ('" + MyData[0] + "','" + MyData[1] + "','" + MyData[2] + "'," + MyData[3] + "," + MyData[4] + ",'" + MyData[5] + "'," + MyData[6] + "," + str(Node.TransactionOutdate) + ");\"")
+					os.system("mysql -u grafanaReader -D pyWALLANCE -e \"INSERT INTO CONSENSUS_TRANSACTIONS (SUBSCRIBER,PUBLISHER,SMARTCONTRACT,PRICE,TIME,PREVSTATE,DCOIN,OUTDATE) VALUES ('" + MyData[0] + "','" + MyData[1] + "','" + MyData[2] + "'," + MyData[3] + "," + MyData[4] + ",'" + MyData[5] + "'," + MyData[6] + "," + str(Node.TransactionOutdate) + ");\"")
 
 		else:
 			print("Error Topic")
@@ -239,7 +239,7 @@ class Interface():
 		while True:
 
 			# Find Majority
-			MajAvailable = os.popen("mysql -u grafanaReader -D pyWALLANCEDB -s -e \"SELECT EXISTS (SELECT 1 FROM CONSENSUS_TRANSACTIONS GROUP BY PUBLISHER, SMARTCONTRACT, PRICE, TIME, PREVSTATE, DCOIN HAVING PREVSTATE=(SELECT STATE FROM WALLET WHERE PUBLISHER=CONSENSUS_TRANSACTIONS.PUBLISHER) AND ((SELECT COUNT(DISTINCT PUBLISHER) FROM WALLET)*(" + str(Node.MajorityThreshold) +")) <= COUNT(DISTINCT SUBSCRIBER) LIMIT 1);\"").readlines()
+			MajAvailable = os.popen("mysql -u grafanaReader -D pyWALLANCE -s -e \"SELECT EXISTS (SELECT 1 FROM CONSENSUS_TRANSACTIONS GROUP BY PUBLISHER, SMARTCONTRACT, PRICE, TIME, PREVSTATE, DCOIN HAVING PREVSTATE=(SELECT STATE FROM WALLET WHERE PUBLISHER=CONSENSUS_TRANSACTIONS.PUBLISHER) AND ((SELECT COUNT(DISTINCT PUBLISHER) FROM WALLET)*(" + str(Node.MajorityThreshold) +")) <= COUNT(DISTINCT SUBSCRIBER) LIMIT 1);\"").readlines()
 			MajAvailable = MajAvailable[0].split('\n')[0]
 
 			# No Majority
@@ -249,7 +249,7 @@ class Interface():
 			else:
 
 				# Recover Majority group
-				MajGroup = os.popen("mysql -u grafanaReader -D pyWALLANCEDB -s -e \"SELECT PUBLISHER, SMARTCONTRACT, PRICE, TIME, PREVSTATE, DCOIN FROM CONSENSUS_TRANSACTIONS GROUP BY PUBLISHER, SMARTCONTRACT, PRICE, TIME, PREVSTATE, DCOIN HAVING PREVSTATE=(SELECT STATE FROM WALLET WHERE PUBLISHER=CONSENSUS_TRANSACTIONS.PUBLISHER) AND ((SELECT COUNT(DISTINCT PUBLISHER) FROM WALLET)*(" + str(Node.MajorityThreshold) +")) <= COUNT(DISTINCT SUBSCRIBER) LIMIT 1;\"").readlines()
+				MajGroup = os.popen("mysql -u grafanaReader -D pyWALLANCE -s -e \"SELECT PUBLISHER, SMARTCONTRACT, PRICE, TIME, PREVSTATE, DCOIN FROM CONSENSUS_TRANSACTIONS GROUP BY PUBLISHER, SMARTCONTRACT, PRICE, TIME, PREVSTATE, DCOIN HAVING PREVSTATE=(SELECT STATE FROM WALLET WHERE PUBLISHER=CONSENSUS_TRANSACTIONS.PUBLISHER) AND ((SELECT COUNT(DISTINCT PUBLISHER) FROM WALLET)*(" + str(Node.MajorityThreshold) +")) <= COUNT(DISTINCT SUBSCRIBER) LIMIT 1;\"").readlines()
 				MajGroup = MajGroup[0].split('\t')
 
 				# Extract Publisher
@@ -271,18 +271,18 @@ class Interface():
 				DCoin = MajGroup[5].split('\n')[0]
 
 				# Reward Participants
-				os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"UPDATE WALLET SET COUNTER=COUNTER+" + str(Node.DCoinReward) + " WHERE PUBLISHER IN (SELECT SUBSCRIBER FROM CONSENSUS_TRANSACTIONS WHERE PUBLISHER='" + Publisher + "' AND SMARTCONTRACT='" +  SmartContract + "' AND PRICE=" + Price + " AND Time=" + Time + " AND PREVSTATE='" + PrevState + "' AND DCOIN=" + DCoin + ");\"")
+				os.system("mysql -u grafanaReader -D pyWALLANCE -e \"UPDATE WALLET SET COUNTER=COUNTER+" + str(Node.DCoinReward) + " WHERE PUBLISHER IN (SELECT SUBSCRIBER FROM CONSENSUS_TRANSACTIONS WHERE PUBLISHER='" + Publisher + "' AND SMARTCONTRACT='" +  SmartContract + "' AND PRICE=" + Price + " AND Time=" + Time + " AND PREVSTATE='" + PrevState + "' AND DCOIN=" + DCoin + ");\"")
 
 				# Remove used Consensus Responses & Request Transactions
-				os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"DELETE FROM CONSENSUS_TRANSACTIONS WHERE PUBLISHER='" + Publisher + "' AND PREVSTATE='" + PrevState + "';\"")
-				os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"DELETE FROM REQUEST_TRANSACTIONS WHERE PUBLISHER='" + Publisher + "' AND PREVSTATE='" + PrevState + "';\"")
+				os.system("mysql -u grafanaReader -D pyWALLANCE -e \"DELETE FROM CONSENSUS_TRANSACTIONS WHERE PUBLISHER='" + Publisher + "' AND PREVSTATE='" + PrevState + "';\"")
+				os.system("mysql -u grafanaReader -D pyWALLANCE -e \"DELETE FROM REQUEST_TRANSACTIONS WHERE PUBLISHER='" + Publisher + "' AND PREVSTATE='" + PrevState + "';\"")
 
 				# Update Wallet (State & Counter) of Publisher after Majority
 				# Compute NewState (Publisher - SmartContract - Price - Time - PrevState - DCoin)
 				MyTX = Publisher + SmartContract + Price + Time + PrevState + DCoin
 				NewState = hashlib.sha256(MyTX.encode()).hexdigest().upper()
 
-				os.system("mysql -u grafanaReader -D pyWALLANCEDB -e \"DELETE FROM WALLET WHERE PUBLISHER='" + Publisher + "'; INSERT INTO WALLET (PUBLISHER,COUNTER,STATE) VALUES ('" + Publisher + "', " + DCoin + "*" + str(Node.DCoinRate) + ", '" + NewState + "');\"")
+				os.system("mysql -u grafanaReader -D pyWALLANCE -e \"DELETE FROM WALLET WHERE PUBLISHER='" + Publisher + "'; INSERT INTO WALLET (PUBLISHER,COUNTER,STATE) VALUES ('" + Publisher + "', " + DCoin + "*" + str(Node.DCoinRate) + ", '" + NewState + "');\"")
 
 				# Execute SmartContract (DEMO ONLY)
 				os.system("/usr/bin/firefox -new-tab file:$HOME/WallanceProject/Wallance/SmartContract/Nespresso_2/Nespresso_2.png &")
@@ -332,11 +332,11 @@ class Interface():
 		self.Receiver.join()
 
 		# Clear pyWallance Database
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'DROP TABLE IF EXISTS SMARTCONTRACT;'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'DROP TABLE IF EXISTS WALLET;'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'DROP TABLE IF EXISTS REQUEST_TRANSACTIONS;'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'DROP TABLE IF EXISTS CONSENSUS_TRANSACTIONS;'")
-		os.system("mysql -u grafanaReader -D pyWALLANCEDB -e 'DROP DATABASE IF EXISTS pyWALLANCEDB;'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'DROP TABLE IF EXISTS SMARTCONTRACT;'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'DROP TABLE IF EXISTS WALLET;'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'DROP TABLE IF EXISTS REQUEST_TRANSACTIONS;'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'DROP TABLE IF EXISTS CONSENSUS_TRANSACTIONS;'")
+		os.system("mysql -u grafanaReader -D pyWALLANCE -e 'DROP DATABASE IF EXISTS pyWALLANCE;'")
 
 		# Shutdown Grafana
 		os.system("killall -q firefox >> /dev/null")
