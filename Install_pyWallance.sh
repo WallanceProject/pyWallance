@@ -63,6 +63,7 @@ rm grafana_5.4.3_amd64.deb
 
 # Download pyWallance
 cd $HOME/WallanceProject
+rm -R -f $HOME/WallanceProject/pyWallance
 wget https://github.com/WallanceProject/pyWallance/archive/master.zip -O pyWallance.zip
 
 # Unzip pyWallance
