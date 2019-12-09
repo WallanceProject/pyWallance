@@ -28,8 +28,8 @@ echo "sudo mv pyWallance/pyWallance_Node.service /etc/systemd/system/" >> Instal
 echo "sudo systemctl daemon-reload" >> Install_pyWallance_Node.sh
 echo "sudo rm -f -R pyWallance && mkdir pyWallance" >> Install_pyWallance_Node.sh
 echo "mv Node.py Sensor.py SmartContract pyWallanceDDS" >> Install_pyWallance_Node.sh
-echo "rm pyWallance_Node.zip" >> Install_pyWallance_Node.sh
-echo "rm Install_pyWallance_Node.sh" >> Install_pyWallance_Node.sh
+echo "rm -f pyWallance_Node.zip" >> Install_pyWallance_Node.sh
+echo "rm -f Install_pyWallance_Node.sh" >> Install_pyWallance_Node.sh
 chmod +x Install_pyWallance_Node.sh
 zip -u pyWallance_Node.zip Install_pyWallance_Node.sh
 rm Install_pyWallance_Node.sh
