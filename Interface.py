@@ -74,9 +74,9 @@ class Interface():
 		self.Receiver = threading.Thread(target=self.ReceiverThread)
 		self.Receiver.start()
 
-		# Start Grafana Interface & Nodes
-		self.StartGrafana()
+		# Start Nodes & Grafana Interface
 		self.StartNode()
+		self.StartGrafana()
 
 		# Set SIGINT signal catcher (CTRL-C)
 		signal.signal(signal.SIGINT, self.Stop)
