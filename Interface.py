@@ -292,7 +292,7 @@ class Interface():
 	# INTERFACE START NODE #
 	########################
 	def StartNode(self):
-		os.system("for ip in $(sudo nmap -sn $(ip -o -f inet addr show | awk '{print $4}' | grep '192') | awk '/Nmap scan report for/{printf $5;}/MAC Address:/{print \" => \"$3;}' | grep \"B8:27:EB\" | awk '{print $1}'); \
+		os.system("for ip in $(sudo nmap -n -sn $(ip -o -f inet addr show | awk '{print $4}' | grep '192') | awk '/Nmap scan report for/{printf $5;}/MAC Address:/{print \" => \"$3;}' | grep \"B8:27:EB\" | awk '{print $1}'); \
 				   do \
 				   echo '********** Start Node $ip **********'; \
 				   ssh pi@$ip 'sudo service pyWallanceNode start' >> /dev/null & \
@@ -312,7 +312,7 @@ class Interface():
 	# INTERFACE STOP NODE #
 	#######################
 	def StopNode(self):
-		os.system("for ip in $(sudo nmap -sn $(ip -o -f inet addr show | awk '{print $4}' | grep '192') | awk '/Nmap scan report for/{printf $5;}/MAC Address:/{print \" => \"$3;}' | grep \"B8:27:EB\" | awk '{print $1}'); \
+		os.system("for ip in $(sudo nmap -n -sn $(ip -o -f inet addr show | awk '{print $4}' | grep '192') | awk '/Nmap scan report for/{printf $5;}/MAC Address:/{print \" => \"$3;}' | grep \"B8:27:EB\" | awk '{print $1}'); \
 				   do \
 				   echo '********** Stop Node $ip **********'; \
 				   ssh pi@$ip 'sudo service pyWallanceNode stop' >> /dev/null & \
