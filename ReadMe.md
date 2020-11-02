@@ -87,7 +87,7 @@ At the end of the installation, the *pyWallance* directory in Raspberry is as fo
 
 In a terminal on your **PC**:
 <pre><code>cd $HOME/WallanceProject/pyWallance
-./Run_Grafana_Interface.sh</code></pre>
+python3 Interface.py</code></pre>
 
 This command start the *pyWallance* Node on each Raspberry and the *pyWallance* User Interface on PC. The Grafana dashboard is opened into a Firefox window. The first connection login is “admin” and the password is “admin”. You can change the password after logging in:
 <br><br>
@@ -139,8 +139,7 @@ Finally, the consensus process is computed, the *Request Transaction* / *Consens
 
 ## Stop *pyWallance*
 
-Close the Firefox window.<br>
-Stop the Run_Grafana_Interface instance in your PC with <Ctrl+C>.<br>
+Stop the Interface.py instance on your PC with <Ctrl+C> in the Interface's terminal<br>
 The *pyWallance* Node instance on each Raspberry will be stopped automatically (using SSH)
 <br><br>
 
